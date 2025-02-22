@@ -103,13 +103,14 @@ class PostureDetection():
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
+        total_z /= (count*2)
         # Store landmark calibration data
-        self.landmark_data.SHOULDER_OPTIMAL = Coordinate(total_shoulder_x/count, total_shoulder_y/count, total_z/(count*2))
-        self.landmark_data.EYE_OPTIMAL = Coordinate(total_eye_x/count, total_eye_y/count, total_z/(count*2))
+        self.landmark_data.SHOULDER_OPTIMAL = Coordinate(total_shoulder_x/count, total_shoulder_y/count, total_z)
+        self.landmark_data.EYE_OPTIMAL = Coordinate(total_eye_x/count, total_eye_y/count, total_z)
 
         print(self.landmark_data.SHOULDER_OPTIMAL, self.landmark_data.EYE_OPTIMAL)
 
-        return Coordinate(self.landmark_data.SHOULDER_OPTIMAL.x, )
+        return Coordinate(self.landmark_data.SHOULDER_OPTIMAL.x, self.landmark_data.EYE_OPTIMAL.y - self.landmark_data.SHOULDER_OPTIMAL.y, total_z)
 
 
 
