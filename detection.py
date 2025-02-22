@@ -21,8 +21,8 @@ class LandmarkData():
         Constructor method for important body data - initialises fields.
         
         Args:
-            SHOULDER_OPTIMAL (Coordinate): Optimal shoulder values to compare against (where x=width between shoulders, y=average height, z=z)
-            EYE_OPTIMAL (Coordinate): Optimal eye values to compare against (where x=width between eyes, y=average height, z=z)
+            SHOULDER_OPTIMAL (Coordinate): Optimal shoulder values to compare against (where x=width between shoulders, y=average height, z=-10z)
+            EYE_OPTIMAL (Coordinate): Optimal eye values to compare against (where x=width between eyes, y=average height, z=-10z)
         """
         # Values to change with every frame (show current coordinates)
         self.left_shoulder = None
@@ -91,7 +91,7 @@ class PostureDetection():
                 total_eye_y += (int(right_eye.y * height) + int(left_eye.y * height)) / 2
 
                 # Get total distance away
-                total_z += right_eye.z + left_eye.z + right_shoulder.z + left_shoulder.z
+                total_z += (right_eye.z + left_eye.z + right_shoulder.z + left_shoulder.z) * -10
                 
                 # Extra frame analysed so increment count
                 count += 1
@@ -148,11 +148,11 @@ class PostureDetection():
 
             self.landmark_data.left_eye = Coordinate(int(left_eye.x * width), int(left_eye.y * height), left_eye.z)
 
-            # Get coordinates for the top of the forehead (landmark 1)
-            top_center_forehead = results.face_landmarks.landmark[1]
+            # Get coordinates for the top of the forehead (landmark 10)
+            top_center_forehead = results.face_landmarks.landmark[10]
 
             # Store top left origin for shape trace in the application
-            self.landmark_data.head_top_left = Coordinate(int(right_shoulder.x * width), int(top_center_forehead.y * height) + 10, top_center_forehead.z * -10)
+            self.landmark_data.head_top_left = Coordinate(int(right_shoulder.x * width), int(top_center_forehead.y * height), top_center_forehead.z * -10)
 
             return self.landmark_data.head_top_left
         
@@ -167,7 +167,7 @@ class PostureDetection():
                         z denotes distance from the screen (use for normalising).
         """
         # Find how much to scale values by to account for distance from camera
-        distance_scalar = self.landmark_data.left_shoulder.z + self.landmark_data.right_shoulder.z + self.landmark_data.left_eye.z + self.landmark_data.right_eye.z
+        distance_scalar = (self.landmark_data.left_shoulder.z + self.landmark_data.right_shoulder.z + self.landmark_data.left_eye.z + self.landmark_data.right_eye.z) * -10
         distance_scalar = (distance_scalar / 4) * self.landmark_data.SHOULDER_OPTIMAL.z
 
         # Calculate difference value for height
