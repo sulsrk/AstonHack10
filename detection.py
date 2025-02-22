@@ -152,7 +152,7 @@ class PostureDetection():
             top_center_forehead = results.face_landmarks.landmark[1]
 
             # Store top left origin for shape trace in the application
-            self.landmark_data.head_top_left = Coordinate(int(left_shoulder.x * width), int(top_center_forehead.y * height) + 10, top_center_forehead.z)
+            self.landmark_data.head_top_left = Coordinate(int(right_shoulder.x * width), int(top_center_forehead.y * height) + 10, top_center_forehead.z * -10)
 
             return self.landmark_data.head_top_left
         
