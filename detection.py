@@ -53,7 +53,7 @@ class PostureDetection():
         # Initialise MediaPipe
         mp_drawing = mp.solutions.drawing_utils
         # Sum the heights and widths of shoulders and eyes
-        total_shoulder_x = total_shoulder_y = total_eye_x = total_eye_y = count = 0
+        total_shoulder_x = total_shoulder_y = total_eye_x = total_eye_y = total_z = count = 0
         # Timer for 10 seconds 
         end_time = time.time() + 5
         while (cap.isOpened() and time.time() < end_time):
@@ -61,9 +61,6 @@ class PostureDetection():
 
             if not ret:
                 break
-
-            # Flip the frame horizontally for a later selfie-view display
-            frame = cv2.flip(frame, 1)
 
             # Convert the BGR image to RGB
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -92,6 +89,9 @@ class PostureDetection():
 
                 total_eye_x += int(right_eye.x * width) - int(left_eye.x * width)
                 total_eye_y += (int(right_eye.y * height) + int(left_eye.y * height)) / 2
+
+                # Get total distance away
+                total_z += right_eye.z + left_eye.z + right_shoulder.z + left_shoulder.z
                 
                 # Extra frame analysed so increment count
                 count += 1
@@ -103,20 +103,24 @@ class PostureDetection():
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        self.landmark_data.SHOULDER_OPTIMAL = Coordinate(total_shoulder_x/count, total_shoulder_y/count)
-        self.landmark_data.EYE_OPTIMAL = Coordinate(total_eye_x/count, total_eye_y/count)
+        # Store landmark calibration data
+        self.landmark_data.SHOULDER_OPTIMAL = Coordinate(total_shoulder_x/count, total_shoulder_y/count, total_z/(count*2))
+        self.landmark_data.EYE_OPTIMAL = Coordinate(total_eye_x/count, total_eye_y/count, total_z/(count*2))
 
         print(self.landmark_data.SHOULDER_OPTIMAL, self.landmark_data.EYE_OPTIMAL)
 
 
 
-    def obtain_landmark_data(self, frame) -> None:
+    def obtain_landmark_data(self, frame) -> Coordinate:
         """
         Populates landmark data store to hold important data from the frame. 
         CALL BEFORE ATTEMPTING TO FIND POSTURE LEVEL.
         
         Args:
             frame (MatLike): Frame to extrapolate data from.
+
+        Return:
+            (Coordinate): Top left of head and shoulder - use for drawing box.
         """
         # Convert the BGR image to RGB
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -148,9 +152,38 @@ class PostureDetection():
             top_center_forehead = results.face_landmarks.landmark[1]
 
             # Store top left origin for shape trace in the application
-            self.landmark_data.head_top_left = Coordinate(int(left_shoulder.x * width), int(top_center_forehead.y * height))
+            self.landmark_data.head_top_left = Coordinate(int(left_shoulder.x * width), int(top_center_forehead.y * height) + 10, top_center_forehead.z)
 
             return self.landmark_data.head_top_left
+        
+    def get_posture_value(self) -> Coordinate:
+        """
+        Returns a value between 0.0 and 1.0 for how close to the original calibration the posture currently is.Coordinate
+
+        Return:
+            (Coordinate): 0.0 if posture is very good, 1.0 for very bad posture.
+                        x denotes shoulder rounding.
+                        y denotes neck/back rounding.
+                        z denotes distance from the screen (use for normalising).
+        """
+        # Find how much to scale values by to account for distance from camera
+        distance_scalar = self.landmark_data.left_shoulder.z + self.landmark_data.right_shoulder.z + self.landmark_data.left_eye.z + self.landmark_data.right_eye.z
+        distance_scalar = (distance_scalar / 4) * self.landmark_data.SHOULDER_OPTIMAL.z
+
+        # Calculate difference value for height
+        height_diff = (self.landmark_data.left_shoulder.y + self.landmark_data.right_shoulder.y) / 2
+        height_diff = (self.landmark_data.left_eye.y + self.landmark_data.right_eye.y) / 2 - height_diff
+        height_diff = (distance_scalar * height_diff)/(self.landmark_data.EYE_OPTIMAL.y - self.landmark_data.SHOULDER_OPTIMAL.y)
+        if (height_diff > 1):
+            height_diff = 1.0
+
+        # Calculate difference value for shoulder width
+        width_diff = self.landmark_data.left_shoulder.x - self.landmark_data.right_shoulder.x
+        width_diff = (distance_scalar * width_diff)/self.landmark_data.SHOULDER_OPTIMAL.x
+        if (width_diff > 1):
+            width_diff = 1.0
+
+        return Coordinate(width_diff, height_diff, distance_scalar)
 """
     def main(self):
         # Set up the webcam
