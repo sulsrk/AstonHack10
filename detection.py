@@ -1,6 +1,7 @@
 import cv2
 import mediapipe as mp
 import time
+import math
 
 # Wrapper class to store coordinates
 class Coordinate():
@@ -103,7 +104,7 @@ class PostureDetection():
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
 
-        total_z /= (count*2)
+        total_z /= (count*4)
         # Store landmark calibration data
         self.landmark_data.SHOULDER_OPTIMAL = Coordinate(total_shoulder_x/count, total_shoulder_y/count, total_z)
         self.landmark_data.EYE_OPTIMAL = Coordinate(total_eye_x/count, total_eye_y/count, total_z)
@@ -170,21 +171,28 @@ class PostureDetection():
                         z denotes distance from the screen (use for normalising).
         """
         # Find how much to scale values by to account for distance from camera
-        distance_scalar = (self.landmark_data.left_shoulder.z + self.landmark_data.right_shoulder.z + self.landmark_data.left_eye.z + self.landmark_data.right_eye.z) * -10
-        distance_scalar = (distance_scalar / 4)
+        distance_scalar = (self.landmark_data.left_shoulder.z + self.landmark_data.right_shoulder.z + self.landmark_data.left_eye.z + self.landmark_data.right_eye.z)
+        distance_scalar = (distance_scalar * -10 / 4)
 
         # Calculate difference value for height
-        height_diff = (self.landmark_data.left_shoulder.y + self.landmark_data.right_shoulder.y) / 2
-        height_diff = (self.landmark_data.left_eye.y + self.landmark_data.right_eye.y) / 2 - height_diff
-        height_diff = height_diff/(3 * (self.landmark_data.EYE_OPTIMAL.y - self.landmark_data.SHOULDER_OPTIMAL.y))
-        if (height_diff > 1):
-            height_diff = 1.0
+        height_diff = ((self.landmark_data.left_shoulder.y + self.landmark_data.right_shoulder.y) / 2) - ((self.landmark_data.left_eye.y + self.landmark_data.right_eye.y)) / 2
+        # Distance from calibration
+        height_diff = (self.landmark_data.SHOULDER_OPTIMAL.y - self.landmark_data.EYE_OPTIMAL.y) - height_diff
+        # Normalise
+        if (height_diff < 0):
+            height_diff = 0
+        else:
+            height_diff = math.tanh(height_diff)
 
         # Calculate difference value for shoulder width
         width_diff = self.landmark_data.left_shoulder.x - self.landmark_data.right_shoulder.x
-        width_diff = width_diff/(10 * self.landmark_data.SHOULDER_OPTIMAL.x)
-        if (width_diff > 1):
-            width_diff = 1.0
+        # Distance from calibration
+        width_diff = self.landmark_data.SHOULDER_OPTIMAL.x - width_diff
+        # Normalise
+        if (width_diff < 0):
+            width_diff = 0
+        else:
+            width_diff = math.tanh(width_diff)
 
         return Coordinate(width_diff, height_diff, distance_scalar)
 """
