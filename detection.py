@@ -158,7 +158,7 @@ class PostureDetection():
         
     def get_posture_value(self) -> Coordinate:
         """
-        Returns a value between 0.0 and 1.0 for how close to the original calibration the posture currently is.Coordinate
+        Returns a value between 0.0 and 1.0 for how close to the original calibration the posture currently is.
 
         Return:
             (Coordinate): 0.0 if posture is very good, 1.0 for very bad posture.
