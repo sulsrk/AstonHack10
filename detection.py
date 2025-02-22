@@ -39,11 +39,11 @@ class PostureDetection():
     holistic = mp.solutions.holistic.Holistic(min_detection_confidence=0.5, min_tracking_confidence=0.5)
     # mp_drawing = mp.solutions.drawing_utils
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Create an empty store of important landmark data
         self.landmark_data = LandmarkData()
 
-    def calibrate(self, cap):
+    def calibrate(self, cap) -> Coordinate:
         """
         Calibrates the display to find initial 'optimal' positions for the shoulders and eyes for good posture.
         
@@ -84,10 +84,10 @@ class PostureDetection():
                 height, width, _ = frame.shape
 
                 # Sum to the total the distance between the shoulders/eyes and their average height
-                total_shoulder_x += int(right_shoulder.x * width) - int(left_shoulder.x * width)
+                total_shoulder_x += int(left_shoulder.x * width) - int(right_shoulder.x * width)
                 total_shoulder_y += (int(right_shoulder.y * height) + int(left_shoulder.y * height)) / 2
 
-                total_eye_x += int(right_eye.x * width) - int(left_eye.x * width)
+                total_eye_x += int(left_eye.x * width) - int(right_eye.x * width)
                 total_eye_y += (int(right_eye.y * height) + int(left_eye.y * height)) / 2
 
                 # Get total distance away
@@ -108,6 +108,8 @@ class PostureDetection():
         self.landmark_data.EYE_OPTIMAL = Coordinate(total_eye_x/count, total_eye_y/count, total_z/(count*2))
 
         print(self.landmark_data.SHOULDER_OPTIMAL, self.landmark_data.EYE_OPTIMAL)
+
+        return Coordinate(self.landmark_data.SHOULDER_OPTIMAL.x, )
 
 
 
@@ -168,18 +170,18 @@ class PostureDetection():
         """
         # Find how much to scale values by to account for distance from camera
         distance_scalar = (self.landmark_data.left_shoulder.z + self.landmark_data.right_shoulder.z + self.landmark_data.left_eye.z + self.landmark_data.right_eye.z) * -10
-        distance_scalar = (distance_scalar / 4) * self.landmark_data.SHOULDER_OPTIMAL.z
+        distance_scalar = (distance_scalar / 4)
 
         # Calculate difference value for height
         height_diff = (self.landmark_data.left_shoulder.y + self.landmark_data.right_shoulder.y) / 2
         height_diff = (self.landmark_data.left_eye.y + self.landmark_data.right_eye.y) / 2 - height_diff
-        height_diff = (distance_scalar * height_diff)/(self.landmark_data.EYE_OPTIMAL.y - self.landmark_data.SHOULDER_OPTIMAL.y)
+        height_diff = height_diff/(self.landmark_data.EYE_OPTIMAL.y - self.landmark_data.SHOULDER_OPTIMAL.y)
         if (height_diff > 1):
             height_diff = 1.0
 
         # Calculate difference value for shoulder width
-        width_diff = self.landmark_data.left_shoulder.x - self.landmark_data.right_shoulder.x
-        width_diff = (distance_scalar * width_diff)/self.landmark_data.SHOULDER_OPTIMAL.x
+        width_diff = self.landmark_data.right_shoulder.x - self.landmark_data.left_shoulder.x
+        width_diff = width_diff/self.landmark_data.SHOULDER_OPTIMAL.x
         if (width_diff > 1):
             width_diff = 1.0
 
