@@ -182,7 +182,7 @@ class PostureDetection():
         if (height_diff < 0):
             height_diff = 0
         else:
-            height_diff = math.tanh(height_diff)
+            height_diff = height_diff #math.tanh(height_diff)
 
         # Calculate difference value for shoulder width
         width_diff = self.landmark_data.left_shoulder.x - self.landmark_data.right_shoulder.x
@@ -192,7 +192,7 @@ class PostureDetection():
         if (width_diff < 0):
             width_diff = 0
         else:
-            width_diff = math.tanh(width_diff)
+            width_diff = width_diff #math.tanh(width_diff)
 
         return Coordinate(width_diff, height_diff, distance_scalar)
 """
