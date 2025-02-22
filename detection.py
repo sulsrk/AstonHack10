@@ -176,13 +176,13 @@ class PostureDetection():
         # Calculate difference value for height
         height_diff = (self.landmark_data.left_shoulder.y + self.landmark_data.right_shoulder.y) / 2
         height_diff = (self.landmark_data.left_eye.y + self.landmark_data.right_eye.y) / 2 - height_diff
-        height_diff = height_diff/(self.landmark_data.EYE_OPTIMAL.y - self.landmark_data.SHOULDER_OPTIMAL.y)
+        height_diff = height_diff/(3 * (self.landmark_data.EYE_OPTIMAL.y - self.landmark_data.SHOULDER_OPTIMAL.y))
         if (height_diff > 1):
             height_diff = 1.0
 
         # Calculate difference value for shoulder width
-        width_diff = self.landmark_data.right_shoulder.x - self.landmark_data.left_shoulder.x
-        width_diff = width_diff/self.landmark_data.SHOULDER_OPTIMAL.x
+        width_diff = self.landmark_data.left_shoulder.x - self.landmark_data.right_shoulder.x
+        width_diff = width_diff/(10 * self.landmark_data.SHOULDER_OPTIMAL.x)
         if (width_diff > 1):
             width_diff = 1.0
 
