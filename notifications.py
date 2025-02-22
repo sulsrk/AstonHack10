@@ -27,7 +27,7 @@ def popup() -> None:
     )
 
 def playSound() -> None:
-    wave_obj = sa.WaveObject.from_wave_file('C:/Users/pickf/Documents/Hackathon/bruh.wav')
+    wave_obj = sa.WaveObject.from_wave_file('/bruh.wav')
     play_obj = wave_obj.play()
     play_obj.wait_done()
 
