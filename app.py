@@ -75,24 +75,35 @@ def draw_box(posture_value, frame, current_head_x, current_head_y, head_width, h
     colour = colour_gradient(posture_value)
 
     # Draws the box around the head for each frame 
-    box = cv2.rectangle(frame, (current_head_x, current_head_y), (current_head_x + head_width, current_head_y + head_height), colour, BOX_THICKNESS)
+    box = cv2.rectangle(frame, (current_head_x, current_head_y), (current_head_x + head_width, current_head_y + head_height + 130), colour, BOX_THICKNESS)
     
     # Displays the message under the box
     cv2.putText(box, display_message(posture_value), (current_head_x + head_width, current_head_y + head_height + 30), 1, 2.5, colour, TEXT_THICKNESS)
 
 posture = PostureDetection()
-optimal = posture.calibrate(cam)
+calibrate = True
+while calibrate:
+    try:
+        optimal = posture.calibrate(cam)
+        head_width = optimal.x
+        head_height = optimal.y
+        calibrate = False
+    except:
+        calibrate = True
 
 # Calculations and displays while camera is running
 while running:
     ret, frame = cam.read()
     frame = cv2.flip(frame, 1)
-    current_pos = posture.obtain_landmark_data(frame)
+    try:
+        current_pos = posture.obtain_landmark_data(frame)
+    except:
+        print("out of frame")
 
     if current_pos != None:
         posture_value = posture.get_posture_value()
         posture_average = (posture_value.x + posture_value.y) / 2
-        draw_box(posture_value.y, frame, current_pos.x, current_pos.y - 50, head_width, head_height)
+        draw_box(posture_value.y, frame, current_pos.x, current_pos.y - 50, int(head_width), int(head_height))
 
     # Display the captured frame
     cv2.imshow('Posture Corrector 3000', frame)
