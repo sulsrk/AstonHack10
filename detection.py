@@ -194,7 +194,7 @@ class PostureDetection():
         if (width_diff < 0):
             width_diff = 0
         else:
-            width_diff = width_diff #math.tanh(width_diff)
+            width_diff = math.tanh((ESTIMATED_CHANGE_PROPORTION/self.landmark_data.OPTIMAL.x) * width_diff)
 
         return Coordinate(width_diff, height_diff, distance_scalar)
 """
