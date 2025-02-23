@@ -96,7 +96,7 @@ class PostureDetection():
                 total_eye_y += (int(right_eye.y * height) + int(left_eye.y * height)) / 2
 
                 # Get total distance away
-                total_z += (right_eye.z + left_eye.z + right_shoulder.z + left_shoulder.z) * -10
+                total_z += right_eye.z + left_eye.z + right_shoulder.z + left_shoulder.z
                 
                 # Extra frame analysed so increment count
                 count += 1
@@ -109,9 +109,9 @@ class PostureDetection():
                 break
 
         # Store landmark calibration data
-        self.landmark_data.OPTIMAL = Coordinate(total_shoulder_x/count, (total_shoulder_y - total_eye_y)/count, total_z/4)
+        self.landmark_data.OPTIMAL = Coordinate(total_shoulder_x/count, (total_shoulder_y - total_eye_y)/count, total_z/(-4 * count))
 
-        print(self.landmark_data.OPTIMAL, self.landmark_data.EYE_OPTIMAL)
+        print(self.landmark_data.OPTIMAL)
 
         return self.landmark_data.OPTIMAL
 
