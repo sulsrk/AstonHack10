@@ -100,16 +100,18 @@ while running:
     ret, frame = cam.read()
     frame = cv2.flip(frame, 1)
     try:
+        # Obtain current position
         current_pos = posture.obtain_landmark_data(frame)
         if current_pos != None:
             posture_value = posture.get_posture_value()
             posture_average = (posture_value.x + posture_value.y) / 2
             draw_box(posture_value.y, frame, current_pos.x, current_pos.y - 50, int(head_width), int(head_height))
-            if posture_average > 0.5:
+            if posture_average > 0.5: # If posture is above a certain threshold
                 notification.checkSlouching()
             else:
                 notification.endTimer()
     except:
+        # Out of bounds detection
         cv2.rectangle(frame, (0, 0), (1920, 1080), (0, 0, 255), 10)
 
     # Display the captured frame
