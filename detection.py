@@ -201,34 +201,3 @@ class PostureDetection():
             width_diff = math.tanh((ESTIMATED_WIDTH_CHANGE_PROPORTION/self.landmark_data.OPTIMAL.x) * width_diff)
 
         return Coordinate(width_diff, height_diff, distance_scalar)
-"""
-    def main(self):
-        # Set up the webcam
-        cap = cv2.VideoCapture(0)
-
-        self.calibrate(cap)
-
-        while cap.isOpened():
-            ret, frame = cap.read()
-
-            if not ret:
-                break
-
-            # Flip the frame horizontally for a later selfie-view display
-            frame = cv2.flip(frame, 1)
-
-            self.obtain_landmark_data(frame)
-
-            # Display the frame
-            cv2.imshow("MediaPipe Holistic", frame)
-
-            # Press 'q' to quit
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-
-        cap.release()
-        cv2.destroyAllWindows()
-
-thing = PostureDetection()
-thing.main()
-"""
