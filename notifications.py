@@ -1,14 +1,9 @@
 from plyer import notification
 import simpleaudio as sa
-# import keyboard
 import time
 
 SLOUCH_ALLOWANCE_TIME = 4
 SLOUCH_REGAIN_TIME = 1
-#slouching = True
-#running = True
-#timerStart = None
-#snooze = False
 
 """
     Toggles a snooze option which turns on and off the notifications regardless of slouching.
@@ -46,18 +41,18 @@ class Notify():
 
     def checkSlouching(self) -> None:
         """
-        Checks if the user is slouching and if they are, starts a timer to display a notification after some time.
+            Checks if the user is slouching and if they are, starts a timer to display a notification after some time.
         """
         if self.timerEnd is None:
             self.timerEnd = time.time() + SLOUCH_ALLOWANCE_TIME
         elif time.time() >= self.timerEnd:
-            Notify.popup("STOP SLOUCHING <3")
+            Notify.popup('Slouch detected!')
             Notify.playSound()
             self.timerStart = None
     
     def endTimer(self) -> None:
         """
-        Sets a timer to end the current notification timer after some amount of 'regain' time.
+            Sets a timer to end the current notification timer after some amount of 'regain' time.
         """
         if self.timerEnd is not None and self.timerEnderEnd is None:
             self.timerEnderEnd = time.time() + SLOUCH_REGAIN_TIME
@@ -67,7 +62,7 @@ class Notify():
 
     def playSound() -> None:
         """
-        Plays a sound during the notification when the user is slouching.
+            Plays a sound during the notification when the user is slouching.
         """
         wave_obj = sa.WaveObject.from_wave_file('./alert.wav')
         play_obj = wave_obj.play()
@@ -75,12 +70,12 @@ class Notify():
 
     def popup(display_message) -> None:
         """
-        Displays a notification to the user if they are slouching.
+            Displays a notification to the user if they are slouching.
 
-        Args:
-            display_message (str): The message to display in the notification.
+            Args:
+                display_message (str): The message to display in the notification.
         """
         notification.notify(
-        title='FIX UP',
-        message="STOP SLOUCHING BOMBACLAT",
+        title = 'Slouch Detected',
+        message = 'Posture correction recommended',
         )
