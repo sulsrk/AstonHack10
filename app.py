@@ -1,5 +1,5 @@
-import cv2
-from enum import Enum
+import cv2, numpy
+from detection import PostureDetection, Coordinate
 
 # Open the default camera
 cam = cv2.VideoCapture(0)
@@ -17,8 +17,6 @@ head_height: int = 700
 
 current_head_x: int = 640
 current_head_y: int = 200
-
-posture_value: float = 0.9
 
 def colour_gradient(posture_value: int) -> tuple:
     """
@@ -82,13 +80,19 @@ def draw_box(posture_value, frame, current_head_x, current_head_y, head_width, h
     # Displays the message under the box
     cv2.putText(box, display_message(posture_value), (current_head_x + head_width, current_head_y + head_height + 30), 1, 2.5, colour, TEXT_THICKNESS)
 
+posture = PostureDetection()
+optimal = posture.calibrate(cam)
+
 # Calculations and displays while camera is running
 while running:
     ret, frame = cam.read()
-
-    # Write the frame to the output file
     frame = cv2.flip(frame, 1)
-    draw_box(posture_value, frame, current_head_x, current_head_y, head_width, head_height)
+    current_pos = posture.obtain_landmark_data(frame)
+
+    if current_pos != None:
+        posture_value = posture.get_posture_value()
+        posture_average = (posture_value.x + posture_value.y) / 2
+        draw_box(posture_value.y, frame, current_pos.x, current_pos.y - 50, head_width, head_height)
 
     # Display the captured frame
     cv2.imshow('Posture Corrector 3000', frame)
@@ -100,5 +104,3 @@ while running:
 # Release the capture objects
 cam.release()
 cv2.destroyAllWindows()
-
-#test
