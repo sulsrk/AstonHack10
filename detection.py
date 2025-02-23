@@ -3,7 +3,7 @@ import mediapipe as mp
 import time
 import math
 
-CALIBRATION_TIME = 10
+CALIBRATION_TIME = 5
 ESTIMATED_HEIGHT_CHANGE_PROPORTION = 5
 ESTIMATED_WIDTH_CHANGE_PROPORTION = 8
 
@@ -81,29 +81,28 @@ class PostureDetection():
             # Draw landmarks on the frame
             mp_drawing.draw_landmarks(frame, results.pose_landmarks, mp.solutions.holistic.POSE_CONNECTIONS)
 
-            if results.pose_landmarks:
-                # Get coordinates of the left and right shoulders (landmarks 11 and 12)
-                left_shoulder = results.pose_landmarks.landmark[mp.solutions.holistic.PoseLandmark.LEFT_SHOULDER]
-                right_shoulder = results.pose_landmarks.landmark[mp.solutions.holistic.PoseLandmark.RIGHT_SHOULDER]
+            # Get coordinates of the left and right shoulders (landmarks 11 and 12)
+            left_shoulder = results.pose_landmarks.landmark[mp.solutions.holistic.PoseLandmark.LEFT_SHOULDER]
+            right_shoulder = results.pose_landmarks.landmark[mp.solutions.holistic.PoseLandmark.RIGHT_SHOULDER]
 
-                # Get coordinates of the left and right eyes (landmarks 159 and 463)
-                left_eye = results.face_landmarks.landmark[mp.solutions.holistic.PoseLandmark.LEFT_EYE]
-                right_eye = results.face_landmarks.landmark[mp.solutions.holistic.PoseLandmark.RIGHT_EYE]
+            # Get coordinates of the left and right eyes (landmarks 159 and 463)
+            left_eye = results.face_landmarks.landmark[mp.solutions.holistic.PoseLandmark.LEFT_EYE]
+            right_eye = results.face_landmarks.landmark[mp.solutions.holistic.PoseLandmark.RIGHT_EYE]
 
-                # Convert normalised coordinates to pixel values and store
-                height, width, _ = frame.shape
+            # Convert normalised coordinates to pixel values and store
+            height, width, _ = frame.shape
 
-                # Sum to the total the distance between the shoulders/eyes and their average height
-                total_shoulder_x += int(left_shoulder.x * width) - int(right_shoulder.x * width)
-                total_shoulder_y += (int(right_shoulder.y * height) + int(left_shoulder.y * height)) / 2
+            # Sum to the total the distance between the shoulders/eyes and their average height
+            total_shoulder_x += int(left_shoulder.x * width) - int(right_shoulder.x * width)
+            total_shoulder_y += (int(right_shoulder.y * height) + int(left_shoulder.y * height)) / 2
 
-                total_eye_y += (int(right_eye.y * height) + int(left_eye.y * height)) / 2
+            total_eye_y += (int(right_eye.y * height) + int(left_eye.y * height)) / 2
 
-                # Get total distance away
-                total_z += right_eye.z + left_eye.z + right_shoulder.z + left_shoulder.z
-                
-                # Extra frame analysed so increment count
-                count += 1
+            # Get total distance away
+            total_z += right_eye.z + left_eye.z + right_shoulder.z + left_shoulder.z
+            
+            # Extra frame analysed so increment count
+            count += 1
 
             # Display the frame
             cv2.imshow("MediaPipe Holistic", frame)
@@ -116,6 +115,8 @@ class PostureDetection():
         self.landmark_data.OPTIMAL = Coordinate(total_shoulder_x/count, (total_shoulder_y - total_eye_y)/count, total_z/(-4 * count))
 
         print(self.landmark_data.OPTIMAL)
+
+        cv2.destroyAllWindows() #Close the calibration window
 
         return self.landmark_data.OPTIMAL
 
@@ -138,33 +139,32 @@ class PostureDetection():
         # Process the frame and get the landmarks
         results = self.holistic.process(rgb_frame)
 
-        if results.pose_landmarks:
-            # Get coordinates of the left and right shoulders (landmarks 11 and 12)
-            left_shoulder = results.pose_landmarks.landmark[mp.solutions.holistic.PoseLandmark.LEFT_SHOULDER]
-            right_shoulder = results.pose_landmarks.landmark[mp.solutions.holistic.PoseLandmark.RIGHT_SHOULDER]
+        # Get coordinates of the left and right shoulders (landmarks 11 and 12)
+        left_shoulder = results.pose_landmarks.landmark[mp.solutions.holistic.PoseLandmark.LEFT_SHOULDER]
+        right_shoulder = results.pose_landmarks.landmark[mp.solutions.holistic.PoseLandmark.RIGHT_SHOULDER]
 
-            # Get coordinates of the left and right eyes (landmarks 159 and 463)
-            left_eye = results.face_landmarks.landmark[mp.solutions.holistic.PoseLandmark.LEFT_EYE]
-            right_eye = results.face_landmarks.landmark[mp.solutions.holistic.PoseLandmark.RIGHT_EYE]
+        # Get coordinates of the left and right eyes (landmarks 159 and 463)
+        left_eye = results.face_landmarks.landmark[mp.solutions.holistic.PoseLandmark.LEFT_EYE]
+        right_eye = results.face_landmarks.landmark[mp.solutions.holistic.PoseLandmark.RIGHT_EYE]
 
-            # Convert normalised coordinates to pixel values and store
-            height, width, _ = frame.shape
+        # Convert normalised coordinates to pixel values and store
+        height, width, _ = frame.shape
 
-            self.landmark_data.left_shoulder = Coordinate(int(left_shoulder.x * width), int(left_shoulder.y * height), left_shoulder.z)
+        self.landmark_data.left_shoulder = Coordinate(int(left_shoulder.x * width), int(left_shoulder.y * height), left_shoulder.z)
 
-            self.landmark_data.right_shoulder = Coordinate(int(right_shoulder.x * width), int(right_shoulder.y * height), right_shoulder.z)
+        self.landmark_data.right_shoulder = Coordinate(int(right_shoulder.x * width), int(right_shoulder.y * height), right_shoulder.z)
 
-            self.landmark_data.right_eye = Coordinate(int(right_eye.x * width), int(right_eye.y * height), right_eye.z)
+        self.landmark_data.right_eye = Coordinate(int(right_eye.x * width), int(right_eye.y * height), right_eye.z)
 
-            self.landmark_data.left_eye = Coordinate(int(left_eye.x * width), int(left_eye.y * height), left_eye.z)
+        self.landmark_data.left_eye = Coordinate(int(left_eye.x * width), int(left_eye.y * height), left_eye.z)
 
-            # Get coordinates for the top of the forehead (landmark 10)
-            top_center_forehead = results.face_landmarks.landmark[10]
+        # Get coordinates for the top of the forehead (landmark 10)
+        top_center_forehead = results.face_landmarks.landmark[10]
 
-            # Store top left origin for shape trace in the application
-            self.landmark_data.head_top_left = Coordinate(int(right_shoulder.x * width), int(top_center_forehead.y * height), top_center_forehead.z * -1)
+        # Store top left origin for shape trace in the application
+        self.landmark_data.head_top_left = Coordinate(int(right_shoulder.x * width), int(top_center_forehead.y * height), top_center_forehead.z * -1)
 
-            return self.landmark_data.head_top_left
+        return self.landmark_data.head_top_left
         
     def get_posture_value(self) -> Coordinate:
         """
