@@ -53,8 +53,7 @@ class Notify():
         """
         if self.timerStart is None:
             self.timerStart = time.time()
-
-        if time.time() - timerStart >= SLOUCH_ALLOWANCE_TIME:
+        elif time.time() - timerStart >= SLOUCH_ALLOWANCE_TIME:
             Notify.popup()
             Notify.playSound()
             self.timerStart = None
