@@ -1,13 +1,13 @@
 from plyer import notification
 import simpleaudio as sa
-import keyboard
+# import keyboard
 import time
 
 SLOUCH_ALLOWANCE_TIME = 2
-slouching = True
-running = True
-timerStart = None
-snooze = False
+#slouching = True
+#running = True
+#timerStart = None
+#snooze = False
 
 """
     Toggles a snooze option which turns on and off the notifications regardless of slouching.
@@ -17,11 +17,11 @@ snooze = False
         slouching (bool): The current state of slouching.
         timerStart (float): The time the user started slouching.
 """
-def snoozeToggle() -> None:
+"""def snoozeToggle() -> None:
     global snooze, slouching, timerStart
     snooze = not snooze
     print('snooze ' + str(snooze))
-    timerStart = time.time() if slouching and not snooze else None
+    timerStart = time.time() if slouching and not snooze else None"""
 
 """
     Toggles the slouching state of the user and starts a timer if the user is slouching.
@@ -30,11 +30,11 @@ def snoozeToggle() -> None:
         slouching (bool): The current state of slouching.
         timerStart (float): The time the user started slouching.
 """
-def spacePressed() -> None:
+"""def spacePressed() -> None:
     global slouching, timerStart
     slouching = not slouching
     print(slouching)
-    timerStart = time.time() if slouching else None
+    timerStart = time.time() if slouching else None"""
 
 # keyboard.on_press_key('space', lambda e: spacePressed())
 # keyboard.on_press_key('s', lambda e: snoozeToggle())
@@ -53,11 +53,10 @@ class Notify():
         """
         if self.timerStart is None:
             self.timerStart = time.time()
-        elif time.time() - timerStart >= SLOUCH_ALLOWANCE_TIME:
-            Notify.popup()
+        elif time.time() - self.timerStart >= SLOUCH_ALLOWANCE_TIME:
+            Notify.popup("STOP SLOUCHING <3")
             Notify.playSound()
             self.timerStart = None
-            print("STOP SLOUCHING")
 
     def playSound() -> None:
         """
