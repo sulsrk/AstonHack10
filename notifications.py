@@ -68,7 +68,7 @@ class Notify():
         play_obj = wave_obj.play()
         play_obj.wait_done()
 
-    def popup(display_message) -> None:
+    def popup(title) -> None:
         """
             Displays a notification to the user if they are slouching.
 
@@ -76,6 +76,6 @@ class Notify():
                 display_message (str): The message to display in the notification.
         """
         notification.notify(
-        title = 'Slouch Detected',
+        title = title,
         message = 'Posture correction recommended',
         )
