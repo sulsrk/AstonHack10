@@ -3,6 +3,9 @@ import mediapipe as mp
 import time
 import math
 
+CALIBRATION_TIME = 10
+ESTIMATED_CHANGE_PROPORTION = 5
+
 # Wrapper class to store coordinates
 class Coordinate():
     def __init__(self, x, y, z=None):
@@ -58,7 +61,7 @@ class PostureDetection():
         # Sum the heights and widths of shoulders and eyes
         total_shoulder_x = total_shoulder_y = total_eye_y = total_z = count = 0
         # Timer for 10 seconds 
-        end_time = time.time() + 5
+        end_time = time.time() + CALIBRATION_TIME
         while (cap.isOpened() and time.time() < end_time):
             ret, frame = cap.read()
 
@@ -181,7 +184,7 @@ class PostureDetection():
         if (height_diff < 0):
             height_diff = 0
         else:
-            height_diff = math.tanh((5/self.landmark_data.OPTIMAL.y) * height_diff)
+            height_diff = math.tanh((ESTIMATED_CHANGE_PROPORTION/self.landmark_data.OPTIMAL.y) * height_diff)
 
         # Calculate difference value for shoulder width
         width_diff = self.landmark_data.left_shoulder.x - self.landmark_data.right_shoulder.x
