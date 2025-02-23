@@ -69,7 +69,7 @@ class Notify():
         """
         Plays a sound during the notification when the user is slouching.
         """
-        wave_obj = sa.WaveObject.from_wave_file('./bruh.wav')
+        wave_obj = sa.WaveObject.from_wave_file('./alert.wav')
         play_obj = wave_obj.play()
         play_obj.wait_done()
 
