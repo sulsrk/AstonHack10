@@ -113,7 +113,7 @@ while running:
         cv2.rectangle(frame, (0, 0), (1920, 1080), (0, 0, 255), 10)
 
     # Display the captured frame
-    cv2.imshow('Posture Corrector 3000', frame)
+    cv2.imshow('Posture Detection', frame)
 
     # Press 'q' to exit the loop
     if cv2.waitKey(1) == ord('q'):
