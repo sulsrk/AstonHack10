@@ -33,7 +33,6 @@ class LandmarkData():
         self.head_top_left = None #2D
         # Values to compare with after calibration
         self.OPTIMAL = OPTIMAL
-        self.EYE_OPTIMAL = EYE_OPTIMAL
 
 class PostureDetection():
     # Initialize MediaPipe Holistic
