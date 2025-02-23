@@ -4,7 +4,8 @@ import time
 import math
 
 CALIBRATION_TIME = 10
-ESTIMATED_CHANGE_PROPORTION = 5
+ESTIMATED_HEIGHT_CHANGE_PROPORTION = 5
+ESTIMATED_WIDTH_CHANGE_PROPORTION = 8
 
 # Wrapper class to store coordinates
 class Coordinate():
@@ -67,6 +68,9 @@ class PostureDetection():
 
             if not ret:
                 break
+            
+            # Flip the frame
+            frame = cv2.flip(frame, 1)
 
             # Convert the BGR image to RGB
             rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -184,7 +188,7 @@ class PostureDetection():
         if (height_diff < 0):
             height_diff = 0
         else:
-            height_diff = math.tanh((ESTIMATED_CHANGE_PROPORTION/self.landmark_data.OPTIMAL.y) * height_diff)
+            height_diff = math.tanh((ESTIMATED_HEIGHT_CHANGE_PROPORTION/self.landmark_data.OPTIMAL.y) * height_diff)
 
         # Calculate difference value for shoulder width
         width_diff = self.landmark_data.left_shoulder.x - self.landmark_data.right_shoulder.x
@@ -194,7 +198,7 @@ class PostureDetection():
         if (width_diff < 0):
             width_diff = 0
         else:
-            width_diff = math.tanh((ESTIMATED_CHANGE_PROPORTION/self.landmark_data.OPTIMAL.x) * width_diff)
+            width_diff = math.tanh((ESTIMATED_WIDTH_CHANGE_PROPORTION/self.landmark_data.OPTIMAL.x) * width_diff)
 
         return Coordinate(width_diff, height_diff, distance_scalar)
 """
