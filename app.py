@@ -1,5 +1,6 @@
-import cv2, numpy
-from detection import PostureDetection, Coordinate
+import cv2
+from detection import PostureDetection
+from notifications import Notify
 
 # Open the default camera
 cam = cv2.VideoCapture(0)
@@ -78,10 +79,13 @@ def draw_box(posture_value, frame, current_head_x, current_head_y, head_width, h
     box = cv2.rectangle(frame, (current_head_x, current_head_y), (current_head_x + head_width, current_head_y + head_height + 130), colour, BOX_THICKNESS)
     
     # Displays the message under the box
-    cv2.putText(box, display_message(posture_value), (current_head_x + head_width, current_head_y + head_height + 30), 1, 2.5, colour, TEXT_THICKNESS)
+    cv2.putText(box, display_message(posture_value), (current_head_x + head_width, current_head_y + head_height + 130), 1, 2.5, colour, TEXT_THICKNESS)
 
 posture = PostureDetection()
+notification = Notify()
 calibrate = True
+
+# Continue to attempt to calibrate until calibration is successful
 while calibrate:
     try:
         optimal = posture.calibrate(cam)
@@ -95,15 +99,16 @@ while calibrate:
 while running:
     ret, frame = cam.read()
     frame = cv2.flip(frame, 1)
-    try:
-        current_pos = posture.obtain_landmark_data(frame)
-    except:
-        print("out of frame")
-
+    #try:
+    current_pos = posture.obtain_landmark_data(frame)
     if current_pos != None:
         posture_value = posture.get_posture_value()
         posture_average = (posture_value.x + posture_value.y) / 2
         draw_box(posture_value.y, frame, current_pos.x, current_pos.y - 50, int(head_width), int(head_height))
+        if posture_average < 0.5:
+            notification.checkSlouching()
+    #except:
+       # cv2.rectangle(frame, (0, 0), (1920, 1080), (0, 0, 255), 10)
 
     # Display the captured frame
     cv2.imshow('Posture Corrector 3000', frame)
