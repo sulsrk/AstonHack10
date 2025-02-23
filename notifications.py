@@ -3,7 +3,8 @@ import simpleaudio as sa
 # import keyboard
 import time
 
-SLOUCH_ALLOWANCE_TIME = 2
+SLOUCH_ALLOWANCE_TIME = 4
+SLOUCH_REGAIN_TIME = 1
 #slouching = True
 #running = True
 #timerStart = None
@@ -40,23 +41,29 @@ SLOUCH_ALLOWANCE_TIME = 2
 # keyboard.on_press_key('s', lambda e: snoozeToggle())
 
 class Notify():
-    timerStart = None
+    timerEnd = None
+    timerEnderEnd = None
 
     def checkSlouching(self) -> None:
         """
-        Checks if the user is slouching and if they are, starts a timer to display a notification after 10 seconds.
-        
-        Args:
-            slouching (bool): The current state of slouching.
-            snooze (bool): The current state of snooze.
-            timerStart (float): The time the user started slouching.
+        Checks if the user is slouching and if they are, starts a timer to display a notification after some time.
         """
-        if self.timerStart is None:
-            self.timerStart = time.time()
-        elif time.time() - self.timerStart >= SLOUCH_ALLOWANCE_TIME:
+        if self.timerEnd is None:
+            self.timerEnd = time.time() + SLOUCH_ALLOWANCE_TIME
+        elif time.time() >= self.timerEnd:
             Notify.popup("STOP SLOUCHING <3")
             Notify.playSound()
             self.timerStart = None
+    
+    def endTimer(self) -> None:
+        """
+        Sets a timer to end the current notification timer after some amount of 'regain' time.
+        """
+        if self.timerEnd is not None and self.timerEnderEnd is None:
+            self.timerEnderEnd = time.time() + SLOUCH_REGAIN_TIME
+        elif self.timerEnd is not None and time.time() >= self.timerEnderEnd:
+            self.timerEnd = None
+            self.timerEnderEnd = None
 
     def playSound() -> None:
         """
